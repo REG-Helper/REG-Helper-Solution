@@ -1,0 +1,116 @@
+@startuml REG_Helper_ER
+
+entity User {
+  * student_id : varchar <<PK>>
+  --
+  first_name : varchar
+  last_name : varchar
+  profile_image : varchar
+  * google_oauth_id : varchar
+  * email : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity Transcript {
+  * id : uuid <<generated>>
+  --
+  url : varchar
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  * student_id : varchar <<FK>>
+}
+
+entity Course {
+  * course_id : varchar <<generated>>
+  --
+  name_en : varchar
+  name_th : varchar
+  description_en : varchar
+  description_th : varchar
+  credit : int
+  credit_str : varchar
+  type : CourseType
+  group : CourseGroup
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity Section {
+  * id : uuid <<generated>>
+  --
+  name : varchar
+  day : string
+  room : string
+  limit : int 
+  count : int
+  queue_left : int
+  pre_count : int
+  midterm_exam : timestamp
+  final_exam : timestamp 
+  created_at : timestamp
+  updated_at : timestamp
+  condition: string
+  --
+  course_id : varchar <<FK>>
+}
+
+entity SectionTime {
+  * id : uuid <<generated>>
+  --
+  start_at : time
+  end_at : time
+  --
+  section_id : uuid <<FK>>
+}
+
+entity Teacher {
+  * id : uuid <<generated>>
+  --
+  first_name_en : varchar
+  last_name_en : varchar
+  first_name_th : varchar
+  last_name_th : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity SectionTeacher {
+  * id : uuid <<generated>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  section_id : uuid <<FK>>
+  teacher_id : uuid <<FK>>
+}
+
+entity UserCourse {
+  * id : uuid <<generated>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  student_id : varchar <<FK>>
+  course_id : varchar <<FK>>
+}
+
+enum CourseType {
+  LECTURE
+  PRACTICE
+}
+
+enum CourseGroup {
+  GEN_ED
+}
+
+User ||---o| Transcript
+Course ||--|{ Section
+Section ||--|{ SectionTeacher
+Section ||--|{ SectionTime
+Teacher ||--|{ SectionTeacher
+User ||--o{ UserCourse
+Course ||--o{ UserCourse
+
+@enduml
