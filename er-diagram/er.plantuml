@@ -33,6 +33,7 @@ entity Course {
   credit_str : varchar
   type : CourseType
   group : CourseGroup
+  subgroup : CourseSubGroup
   created_at : timestamp
   updated_at : timestamp
 }
