@@ -43,6 +43,8 @@ entity Section {
   name : varchar
   day : string
   room : string
+  year : int
+  semester: int
   limit : int 
   count : int
   queue_left : int
@@ -102,7 +104,22 @@ enum CourseType {
 }
 
 enum CourseGroup {
-  GEN_ED
+  GENED
+  SPECIFIC
+  FREE_ELECTIVE
+}
+
+enum CourseSubGroup {
+  FREE_ELEC
+  FUND
+  LANG
+  FAC_SPEC
+  GENED_ELEC
+  CORE
+  REQUIRED
+  ELEC_REQ
+  ALT_STUDY
+  MAJOR_ELEC
 }
 
 User ||---o| Transcript
