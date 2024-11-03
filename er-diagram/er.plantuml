@@ -1,29 +1,39 @@
 @startuml REG_Helper_ER
+left to right direction
 
 entity User {
   * student_id : varchar <<PK>>
   --
-  first_name : varchar
-  last_name : varchar
+  firstname : varchar
+  lastname : varchar
   profile_image : varchar
-  * google_oauth_id : varchar
-  * email : varchar
+  email : varchar
+  role : UserRole
+  department : varchar
+  faculty : varchar
   created_at : timestamp
   updated_at : timestamp
 }
 
+entity UserOauthProvider {
+  * id : uuid <<PK>>
+  --
+  provider : OauthProvider
+  * student_id : varchar <<FK>>
+}
+
 entity Transcript {
-  * id : uuid <<generated>>
+  * id : uuid <<PK>>
   --
   url : varchar
   created_at : timestamp
   updated_at : timestamp
   --
-  * student_id : varchar <<FK>>
+  student_id : varchar <<FK>>
 }
 
 entity Course {
-  * course_id : varchar <<generated>>
+  * course_id : varchar <<PK>>
   --
   name_en : varchar
   name_th : varchar
@@ -31,7 +41,6 @@ entity Course {
   description_th : varchar
   credit : int
   credit_str : varchar
-  type : CourseType
   group : CourseGroup
   subgroup : CourseSubGroup
   created_at : timestamp
@@ -39,59 +48,91 @@ entity Course {
 }
 
 entity Section {
-  * id : uuid <<generated>>
+  * id : uuid <<PK>>
   --
   name : varchar
-  day : string
-  room : string
+  day : varchar
+  room : varchar
   year : int
   semester: int
-  limit : int 
+  limit : int
   count : int
-  queue_left : int
-  pre_count : int
-  midterm_exam : timestamp
-  final_exam : timestamp 
+  midterm_exam_date : timestamp
+  final_exam_date : timestamp
+  type : CourseType
+  start_at : timestamp
+  end_at : timestamp
+  condition: varchar
   created_at : timestamp
   updated_at : timestamp
-  condition: string
-  --
   course_id : varchar <<FK>>
 }
 
-entity SectionTime {
-  * id : uuid <<generated>>
-  --
-  start_at : time
-  end_at : time
-  --
-  section_id : uuid <<FK>>
-}
-
 entity Teacher {
-  * id : uuid <<generated>>
+  * id : uuid <<PK>>
   --
-  first_name_en : varchar
-  last_name_en : varchar
-  first_name_th : varchar
-  last_name_th : varchar
+  firstname_en : varchar
+  lastname_en : varchar
+  firstname_th : varchar
+  lastname_th : varchar
   created_at : timestamp
   updated_at : timestamp
 }
 
 entity SectionTeacher {
-  * id : uuid <<generated>>
+  * id : uuid <<PK>>
   --
   created_at : timestamp
   updated_at : timestamp
-  --
   section_id : uuid <<FK>>
   teacher_id : uuid <<FK>>
 }
 
 entity UserCourse {
-  * id : uuid <<generated>>
+  * id : uuid <<PK>>
   --
+  grade : Grade
+  created_at : timestamp
+  updated_at : timestamp
+  student_id : varchar <<FK>>
+  course_id : varchar <<FK>>
+}
+
+entity Skill {
+  * id : uuid <<PK>>
+  --
+  name_en : varchar
+  name_th : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity StudyMaterial {
+  * id : uuid <<PK>>
+  -- 
+  file_path : varchar
+  created_at : timestamp
+  updated_at :  timestamp
+  --
+  course_id : varchar <<FK>>
+  student_id : varchar <<FK>>
+}
+
+entity LikedReview {
+  * id : uuid <<FK>>
+  --
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  student_id : varchar <<FK>>
+  review_id : uuid <<FK>>
+}
+
+entity Review {
+  * id : uuid <<FK>>
+  --
+  content : text
+  rating : int
   created_at : timestamp
   updated_at : timestamp
   --
@@ -99,15 +140,57 @@ entity UserCourse {
   course_id : varchar <<FK>>
 }
 
-enum CourseType {
-  LECTURE
-  PRACTICE
+entity Job {
+  * id : uuid <<PK>>
+  --
+  name_en : varchar
+  name_th : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity SkillJobMapping {
+  * id : uuid <<PK>>
+  --
+  from : varchar
+  from_th : varchar
+  from_type : varchar
+  to : varchar
+  to_th : varchar
+  to_type : varchar
+  weight : int
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  job_id : varchar <<FK>>
+  skill_id : uuid <<FK>>
+}
+
+entity SkillCourseMapping {
+  * id : uuid <<PK>>
+  --
+  from : varchar
+  from_th : varchar
+  from_type : varchar
+  to : varchar
+  to_th : varchar
+  to_type : varchar
+  weight : int
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  course_id : varchar <<FK>>
+  skill_id : uuid <<FK>>
 }
 
 enum CourseGroup {
   GENED
   SPECIFIC
   FREE_ELECTIVE
+}
+
+enum OauthProvider {
+  GOOGLE
 }
 
 enum CourseSubGroup {
@@ -123,12 +206,46 @@ enum CourseSubGroup {
   MAJOR_ELEC
 }
 
-User ||---o| Transcript
-Course ||--|{ Section
-Section ||--|{ SectionTeacher
-Section ||--|{ SectionTime
-Teacher ||--|{ SectionTeacher
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum CourseType {
+  LECTURE
+  PRACTICE
+}
+
+enum Grade {
+  A
+  B_PLUS
+  B
+  C_PLUS
+  C
+  D_PLUS
+  D
+  F
+  W
+  S
+  U
+}
+
+User ||--o{ Transcript
+User ||--|| UserOauthProvider
 User ||--o{ UserCourse
 Course ||--o{ UserCourse
+Course ||--o{ Section
+Course ||--o{ SkillCourseMapping
+Skill ||--o{ SkillCourseMapping
+Skill ||--o{ SkillJobMapping
+Job ||--o{ SkillJobMapping
+Section ||--o{ SectionTeacher
+Teacher ||--o{ SectionTeacher
+User ||--o{ Review
+User ||-o{ LikedReview
+Review ||--o{ LikedReview
+Course ||--o{ Review
+User ||--o{ StudyMaterial
+
 
 @enduml
